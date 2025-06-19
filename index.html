@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mono Animado con Videos</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+    }
+
+    #videoContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    video {
+      position: absolute;
+      width: 140px;
+      height: auto;
+      display: none;
+    }
+
+    #linterna {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,200,0.6) 0%, rgba(255,255,200,0) 70%);
+      pointer-events: none;
+      display: none;
+      z-index: 2;
+    }
+
+    #botonLinterna {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #707574;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="videoContainer">
+    <button id="botonLinterna"></button>
+    <div id="linterna"></div>
+
+    <video id="videoDerecha" src="Mono derecha.mp4" autoplay muted loop></video>
+    <video id="videoIzquierda" src="Mono izquierda.mp4" autoplay muted loop></video>
+    <video id="videoArriba" src="Mono arriba.mp4" autoplay muted loop></video>
+    <video id="videoAbajo" src="Mono abajo.mp4" autoplay muted loop></video>
+  </div>
+
+  <script>
+    const videos = {
+      derecha: document.getElementById("videoDerecha"),
+      izquierda: document.getElementById("videoIzquierda"),
+      arriba: document.getElementById("videoArriba"),
+      abajo: document.getElementById("videoAbajo"),
+    };
+
+    let currentX = 50;
+    let currentY = 50;
+    const step = 3;
+    let direction = "derecha";
+    let moving = true;
+    let linternaEncendida = false;
+    const linterna = document.getElementById("linterna");
+    const boton = document.getElementById("botonLinterna");
+
+    function mostrarVideo(direccion) {
+      for (let key in videos) {
+        videos[key].style.display = "none";
+      }
+      if (videos[direccion]) {
+        videos[direccion].style.display = "block";
+      }
+    }
+
+    function moverMono() {
+      if (!moving) return;
+
+      const containerWidth = window.innerWidth;
+      const containerHeight = window.innerHeight;
+
+      switch (direction) {
+        case "derecha":
+          currentX += step;
+          if (currentX + 140 >= containerWidth) direction = "abajo";
+          break;
+        case "abajo":
+          currentY += step;
+          if (currentY + 140 >= containerHeight) direction = "izquierda";
+          break;
+        case "izquierda":
+          currentX -= step;
+          if (currentX <= 0) direction = "arriba";
+          break;
+        case "arriba":
+          currentY -= step;
+          if (currentY <= 0) direction = "derecha";
+          break;
+      }
+
+      mostrarVideo(direction);
+      videos[direction].style.left = currentX + "px";
+      videos[direction].style.top = currentY + "px";
+      if (linternaEncendida) actualizarLinterna();
+    }
+
+    function ocultarVideosYLinterna() {
+      for (let key in videos) {
+        videos[key].style.display = "none";
+      }
+      linterna.style.display = "none";
+    }
+
+    function moverAPosicionAleatoria() {
+      const containerWidth = window.innerWidth - 140;
+      const containerHeight = window.innerHeight - 140;
+      currentX = Math.floor(Math.random() * containerWidth);
+      currentY = Math.floor(Math.random() * containerHeight);
+      mostrarVideo(direction);
+      videos[direction].style.left = currentX + "px";
+      videos[direction].style.top = currentY + "px";
+      if (linternaEncendida) actualizarLinterna();
+    }
+
+    function desaparicionCada5Min() {
+      setInterval(() => {
+        moving = false;
+        ocultarVideosYLinterna();
+        setTimeout(() => {
+          moverAPosicionAleatoria();
+          if (linternaEncendida) linterna.style.display = "block";
+          moving = true;
+        }, 6000);
+      }, 300000); // cada 3 minutos
+    }
+
+    function actualizarLinterna() {
+      linterna.style.left = (currentX + 20) + "px";
+      linterna.style.top = (currentY + 20) + "px";
+    }
+
+    boton.addEventListener("click", () => {
+      linternaEncendida = !linternaEncendida;
+      linterna.style.display = linternaEncendida ? "block" : "none";
+    });
+
+    setInterval(moverMono, 30);
+    desaparicionCada5Min();
+  </script>
+</body>
+</html>
