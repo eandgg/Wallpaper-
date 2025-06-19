@@ -35,24 +35,10 @@
       display: none;
       z-index: 2;
     }
-
-    #botonLinterna {
-      position: absolute;
-      left: 10px;
-      top: 10px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #707574;
-      border: none;
-      cursor: pointer;
-      z-index: 10;
-    }
   </style>
 </head>
 <body>
   <div id="videoContainer">
-    <button id="botonLinterna"></button>
     <div id="linterna"></div>
 
     <video id="videoDerecha" src="Mono derecha.mp4" autoplay muted loop></video>
@@ -76,7 +62,6 @@
     let moving = true;
     let linternaEncendida = false;
     const linterna = document.getElementById("linterna");
-    const boton = document.getElementById("botonLinterna");
 
     function mostrarVideo(direccion) {
       for (let key in videos) {
@@ -145,7 +130,7 @@
           if (linternaEncendida) linterna.style.display = "block";
           moving = true;
         }, 6000);
-      }, 300000); // cada 3 minutos
+      }, 300000); // cada 5 minutos
     }
 
     function actualizarLinterna() {
@@ -153,9 +138,12 @@
       linterna.style.top = (currentY + 20) + "px";
     }
 
-    boton.addEventListener("click", () => {
-      linternaEncendida = !linternaEncendida;
-      linterna.style.display = linternaEncendida ? "block" : "none";
+    // Encender/apagar linterna con la tecla "x"
+    document.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() === "x") {
+        linternaEncendida = !linternaEncendida;
+        linterna.style.display = linternaEncendida ? "block" : "none";
+      }
     });
 
     setInterval(moverMono, 30);
